@@ -1,0 +1,7 @@
+# roles/sms/tasks/main.yml
+
+- name: Send SMS notifications
+  shell: |
+    sudo /path/path/java -jar /path/path/Send_SMS.jar "phone_number||Attention, {{ inventory_hostname }} Restarted Successfully||Alarm"
+  ignore_errors: true
+

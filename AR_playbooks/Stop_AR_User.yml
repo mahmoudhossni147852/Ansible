@@ -1,0 +1,10 @@
+---
+- name: Stop and Clear Cache
+  hosts: group2
+  become: true
+  tasks:
+    - name: Execute Stop DEV AR
+      command: /path/path/arsystem stop
+      args:
+        chdir: /path/path
+

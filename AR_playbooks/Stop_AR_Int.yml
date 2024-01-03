@@ -1,0 +1,14 @@
+---
+- name: Stop and Clear Cache
+  hosts: group1
+  become: true
+  tasks:
+    - name: Set stop command based on IP address
+      set_fact:
+        stop_command: "{{ '/path/path/arsystem stop' if inventory_hostname != 'ip' else '/path/path/arsystem stop' }}"
+
+    - name: Execute Stop DEV AR
+      command: "{{ stop_command }}"
+      args:
+        chdir: "{{ '/path/path' if inventory_hostname != 'ip' else '/path/path'' }}"
+

@@ -1,0 +1,50 @@
+- name: Start ARSystem Servers
+  hosts: group3
+  become: true
+  gather_facts: false  # Skip gathering facts for performance improvement
+
+  tasks:
+    - name: Set start command based on IP address
+      set_fact:
+        start_command: "{{ '/path/path/arsystem start' if inventory_hostname != 'ip' else '/path/path/arsystem start' }}"
+
+    - name: Execute ARSystem start command asynchronously with nohup for the first server
+      shell: "nohup {{ start_command }} > /dev/null 2>&1 &"
+      async: 300
+      poll: 0
+      register: first_server_result
+      when: inventory_hostname == groups['group3'][0]  # Execute only for the first server
+
+    - name: Wait for the first server to be up
+      wait_for:
+        host: "{{ groups['group3'][0] }}"
+        port: 50000
+        delay: 10
+        timeout: 900
+      register: result
+      retries: 90
+      when: inventory_hostname == groups['group3'][0]
+
+    - name: Check connection using nc for the first server
+      command: "nc -vz {{ groups['group3'][0] }} 50000"
+      ignore_errors: true
+      register: nc_result
+      when: inventory_hostname == groups['group3'][0]
+
+    - name: Debug output for the first server
+      debug:
+        var: result
+      when: inventory_hostname == groups['group3'][0] and result is success and nc_result.rc == 0
+
+    - name: Start ARSystem servers (excluding the first server)
+      shell: "nohup {{ start_command }} > /dev/null 2>&1 &"
+      async: 300
+      poll: 0
+      register: other_servers_result
+      when: inventory_hostname != groups['group3'][0]
+
+    - name: Debug output for other servers
+      debug:
+        var: other_servers_result
+      when: inventory_hostname != groups['group3'][0]
+

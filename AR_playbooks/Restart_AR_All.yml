@@ -1,0 +1,38 @@
+- name: Restart ARSystem Servers One by One
+  hosts: group1
+  become: true
+  gather_facts: false  # Skip gathering facts for performance improvement
+
+  serial: 1  # Ensure only one host is processed at a time
+
+  tasks:
+    - name: Set restart command based on IP address
+      set_fact:
+        restart_command: "{{ '/path/path/arsystem restart' if inventory_hostname != 'ip' else '/path/path/arsystem restart' }}"
+
+    - name: Execute ARSystem restart command
+      shell: "nohup {{ restart_command }}"
+      async: 300
+      poll: 0
+      register: restart_result
+
+    - name: Wait for the server to be up
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 50000
+        delay: 10
+        timeout: 900
+      register: result
+      retries: 90
+      when: restart_result is success
+
+    - name: Debug output for the server
+      debug:
+        var: result
+      when: restart_result is success and result is success
+
+    - name: Include SMS role to send notifications
+      include_role:
+        name: sms
+      when: restart_result is success
+
