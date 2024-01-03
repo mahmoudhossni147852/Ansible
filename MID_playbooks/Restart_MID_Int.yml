@@ -1,0 +1,43 @@
+- name: Stop, Clear Cache, and Start Servers
+  hosts: group3
+  become: true
+  serial: 1  # Set the number of hosts to process at a time (1 for one by one)
+  tasks:
+    - name: Stop Tomcat
+      shell: /path/path/StopTomcat.sh
+      args:
+        chdir: /path/path
+
+    - name: Execute cache_delete.sh
+      shell: /path/path/cache_delete.sh
+      args:
+        chdir: /path/path
+
+    - name: Start Tomcat
+      shell: /path/path/RestartTomcat.sh
+      args:
+        chdir: /path/path
+      async: 600
+      poll: 0
+      register: script_result
+
+    - name: Wait for StartTomcat.sh to complete
+      async_status:
+        jid: "{{ script_result.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 10
+
+    - name: Print script result
+      debug:
+        var: script_result
+      when: job_result.finished | default(false)
+
+    - name: Check Connectivity after Start
+      shell: nc -v {{ inventory_hostname }} 443
+      register: nc_result
+      ignore_errors: true
+      when: job_result.finished | default(false)
+      async: 10  # Increase the timeout if needed
+      poll: 0

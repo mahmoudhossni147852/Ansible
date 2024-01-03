@@ -1,0 +1,14 @@
+- name:  Stop and Clear Cache
+  hosts: group3
+  become: true
+  tasks:
+    - name: Execute StopTomcat.sh
+      shell: /path/path/StopTomcat.sh
+      args:
+        chdir: /path/path
+
+    - name: Execute cache_delete.sh
+      shell: /path/path/cache_delete.sh
+      args:
+        chdir: /path/path
+

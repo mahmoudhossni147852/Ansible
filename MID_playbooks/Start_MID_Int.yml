@@ -1,0 +1,37 @@
+- name: Start Servers
+  hosts: group3
+  become: true
+  tasks:
+    - name: Execute StartTomcat.sh asynchronously
+      shell: /path/path/RestartTomcat.sh
+      args:
+        chdir: /path/path
+      async: 600
+      poll: 0
+      register: script_result
+
+    - name: Wait for StartTomcat.sh to complete
+      async_status:
+        jid: "{{ script_result.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 10
+      loop: "{{ ansible_play_batch }}"
+
+    - name: Print script result
+      debug:
+        var: script_result
+      when: job_result.finished | default(false)
+
+    - name: Check Connectivity after Start
+      shell: nc -v {{ inventory_hostname }} 443
+      register: nc_result
+      ignore_errors: true
+      when: job_result.finished | default(false)
+
+    - name: Debug output
+      debug:
+        var: nc_result
+      when: job_result.finished | default(false)
+
