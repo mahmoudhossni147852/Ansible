@@ -16,13 +16,30 @@ Led the design and implementation of an Ansible project aimed at efficiently sta
 ## Project Structure
 ```plaintext
 ansible-project/
-├── playbooks/
-│   ├── start_machines.yml
-│   ├── stop_machines.yml
-│   └── ...
-├── scripts/
-│   ├── menu.sh
-│   ├── start.sh
-│   └── stop.sh
+├── AR_playbooks/
+│   ├── roles/
+│   │   └── sms/
+│   │       └── tasks/
+│   │           └── main.yml
+│   ├── Restart_AR_All.yml
+│   ├── Restart_AR_Int.yml
+│   ├── Restart_AR_User.yml
+│   ├── Start_AR_All.yml
+│   ├── Start_AR_Int.yml
+│   ├── Start_AR_User.yml
+│   ├── Stop_AR_All.yml
+│   ├── Stop_AR_Int.yml
+│   └── Stop_AR_User.yml
+├── MID_playbooks/
+│   ├── Restart_MID_All.yml
+│   ├── Restart_MID_Int.yml
+│   ├── Restart_MID_User.yml
+│   ├── Start_MID_All.yml
+│   ├── Start_MID_Int.yml
+│   ├── Start_MID_User.yml
+│   ├── Stop_MID_All.yml
+│   ├── Stop_MID_Int.yml
+│   └── Stop_MID_User.yml
+├── MENU_Stop_Start.sh
 ├── README.md
-└── ...
+└── inventory.ini
